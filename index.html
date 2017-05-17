@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<style>
+.chart {
+    width: 100%;
+}
+.chart div {
+  font: 10px sans-serif;
+  background-color: steelblue;
+  text-align: right;
+  padding: 0px;
+  margin: 1px;
+  color: white;
+}
+
+</style>
+<body>
+<div class="chart">
+
+</div>
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+    var width = window.innerWidth;
+    var height = window.innerHeight - 30;
+    d3.csv("testDataSimple.csv", function(error, data) {
+        // Convert strings to numbers.
+        data.forEach(function(d) {
+            d.one = +d.one;
+            d.two = +d.two;
+        });
+        var maxOne = d3.max(data, function(d) { return d.one; });
+        console.log(data);
+        var x = d3.scaleLinear()
+        .domain([0, maxOne])
+        .range([0, 400]);
+        var barHeight = Math.floor((height / data.length) - 1);
+        console.log(barHeight, "barHeigt")
+
+    d3.select(".chart")
+    .selectAll("div")
+        .data(data)
+    .enter().append("div")
+        .style("width", function(d) { 
+            console.log(d);
+            return x(d.one) + "px"; })
+        .style("height", function(d) { 
+            return  barHeight + "px"; });
+        //.text(function(d) { return +d.one; });
+    });
+</script>
+</body>
