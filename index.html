@@ -36,13 +36,13 @@
 <script>
     var width = window.innerWidth;
     var height = window.innerHeight - 30;
-    d3.csv("testDataSimple.csv", function(error, data) {
+    d3.csv("waterFootprint.csv", function(error, data) {
         // Convert strings to numbers.
         data.forEach(function(d) {
-            d.one = +d.one;
-            d.two = +d.two;
+            d.InternalTotal = +d.InternalTotal;
+            d.ExternalTotal = +d.ExternalTotal;
         });
-        var maxOne = d3.max(data, function(d) { return d.one; });
+        var maxOne = d3.max(data, function(d) { return Math.max(d.InternalTotal, d.ExternalTotal); });
         console.log(data);
         var x = d3.scaleLinear()
         .domain([0, maxOne])
@@ -56,19 +56,19 @@
     .enter().append("div")
         .style("width", function(d) { 
             console.log(d);
-            return x(d.one) + "px"; })
+            return x(d.InternalTotal) + "px"; })
         .style("height", function(d) { 
-            return  barHeight + "px"; });
+            return  barHeight + "px"; }).text(function(d) { return d.Country; });
         d3.select(".external")
     .selectAll("div")
         .data(data)
     .enter().append("div")
         .style("width", function(d) { 
             console.log(d);
-            return x(d.two) + "px"; })
+            return x(d.ExternalTotal) + "px"; })
         .style("height", function(d) { 
-            return  barHeight + "px"; });
-        //.text(function(d) { return +d.one; });
+            return  barHeight + "px"; })
+        .text(function(d) { return d.Country; });
     });
 </script>
 </body>
