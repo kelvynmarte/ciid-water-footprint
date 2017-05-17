@@ -4,13 +4,24 @@
     width: 100%;
 }
 .chart > div {
-    width: calc(50% - 1px);
+    width: calc(50% - 6px);
     min-height: 1vh;
     float: left;
 }
 .internal {
+    position: relative;
     float: left;
-    border-right: 1px solid #333;
+    border-right: 0px solid #FFF; 
+}
+.internal:after {
+    display: blocK;
+    background-color: #FFF;
+    opacity: 0.3;
+    width: 4px;
+    height: 100vh;
+    position: absolute;
+    content: '';
+    right: -2px;
 }
 
 .chart > div > div {
@@ -18,12 +29,15 @@
   background-color: steelblue;
   text-align: right;
   padding: 0px;
-  margin-bottom: 1px;
-  color: white;
+  margin-bottom: 0px;
+  color: black;
 }
 .internal > div{
     float: right;
     clear: both;
+}
+
+.internal > div:hover {
 }
 
 </style>
@@ -34,20 +48,41 @@
 </div>
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script>
+    var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
+    // var regionColors = ["#8081b9", "#8cb9da", "#7bc1d8", "#003845", "#588ca4", "#145b9b", "#67aadf", "#61bae4", "#a7dea", "#01a4bf", "#45a889"];
+    var regionColors = ["#8f57a2", "#fcb71e", "#f58023", "#bdd549", "#9cc841", "#9ddaec", "#1aabd8", "#3d81c2", "#244d74", "#fae83e", "#46bea2"];
+
     var width = window.innerWidth;
-    var height = window.innerHeight - 30;
+    var height = window.innerHeight - 50;
     d3.csv("waterFootprint.csv", function(error, data) {
         // Convert strings to numbers.
         data.forEach(function(d) {
             d.InternalTotal = +d.InternalTotal;
             d.ExternalTotal = +d.ExternalTotal;
+            d.InternalTotalCap = +d.InternalTotalCap;
+            d.ExternalTotalCap = +d.ExternalTotalCap;
+            d.TotalCap = +d.TotalCap;
+            d.Country = d.Country.trim();
         });
-        var maxOne = d3.max(data, function(d) { return Math.max(d.InternalTotal, d.ExternalTotal); });
+
+
+        // Sort by total cap 
+        /*data.sort(function(a,b) { 
+            return a.TotalCap - b.TotalCap; 
+        });*/
+
+        // Sort by region
+        data.sort(function(a,b) { 
+            return regions.indexOf(a.Region) - regions.indexOf(b.Region); 
+        });
+
+
+        var maxOne = d3.max(data, function(d) { return Math.max(d.ExternalTotalCap, d.InternalTotalCap); });
         console.log(data);
         var x = d3.scaleLinear()
         .domain([0, maxOne])
-        .range([0, (width-60)/2]);
-        var barHeight = Math.floor((height / data.length) - 1);
+        .range([0, (width - 40)/2]);
+        var barHeight = Math.floor((height / data.length));
         console.log(barHeight, "barHeigt")
 
     d3.select(".internal")
@@ -56,19 +91,26 @@
     .enter().append("div")
         .style("width", function(d) { 
             console.log(d);
-            return x(d.InternalTotal) + "px"; })
+            return x(d.InternalTotalCap) + "px"; })
         .style("height", function(d) { 
-            return  barHeight + "px"; }).text(function(d) { return d.Country; });
+            return  barHeight + "px"; })
+        .style("background-color", function(d) { 
+            return  regionColors[regions.indexOf(d.Region)]; });
+            //.text(function(d) { return d.Country; });
+
         d3.select(".external")
     .selectAll("div")
         .data(data)
     .enter().append("div")
         .style("width", function(d) { 
             console.log(d);
-            return x(d.ExternalTotal) + "px"; })
+            return x(d.ExternalTotalCap) + "px"; })
         .style("height", function(d) { 
             return  barHeight + "px"; })
-        .text(function(d) { return d.Country; });
+        .style("background-color", function(d) { 
+            console.log(d.Region + ":" + regions.indexOf(d.Region) + ":" + regionColors[regions.indexOf(d.Region)], "colors");
+            return  regionColors[regions.indexOf(d.Region)]; });
+         // .text(function(d) { return d.Country; });
     });
 </script>
 </body>
