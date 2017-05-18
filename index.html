@@ -4,6 +4,9 @@
 <script src="node_modules/jquery/dist/jquery.min.js"></script>
 
 <style>
+body {
+  overflow: hidden;
+}
 .chart {
     width: 100%;
 }
@@ -62,11 +65,13 @@
 <script>
     var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
     var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
-    var width = window.innerWidth - 20;
-    var height = window.innerHeight - 40;
-    var dataDisplayRange = width - 600
-    var svg = d3.select(".chart").append("svg").attr("width", width).attr("height", height);
+
     var titlePadding = 30;
+    var width = window.innerWidth - 20;
+    var height = window.innerHeight - titlePadding;
+    var dataDisplayRange = width - 600
+    var svg = d3.select(".chart").append("svg").attr("width", window.innerWidth).attr("height", window.innerHeight);
+
     var globalFilters = {perCapita: true};
 
     var getRowColor = function(d){
@@ -118,7 +123,7 @@
         .range([0, dataDisplayRange/2]);
         var yScale = d3.scaleLinear()
         .domain([0, data.length])
-        .range([0, height]);
+        .range([titlePadding, height]);
 
         var updateXScaleDomain = function (){
           var maxOne = d3.max(data, function(d) { return Math.max(d.getExternalTotal(), d.getInternalTotal()); });
@@ -152,26 +157,26 @@
                 switch($(e.target).val()){
                     case "region":
                         rows.sort(function(a,b) {
-                            return d3.ascending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
+                            return d3.descending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
                         });
                     break;
                     case "inside":
                         rows.sort(function(a,b) {
                             // return a.InternalTotalCap - b.InternalTotalCap;
-                            return d3.ascending(a.getInternalTotal(), b.getInternalTotal());
+                            return d3.descending(a.getInternalTotal(), b.getInternalTotal());
                         });
                     break;
                     case "outside":
                         rows.sort(function(a,b) {
                             // return a.ExternalTotalCap - b.ExternalTotalCap;
-                            return d3.ascending(a.getExternalTotal(), b.getExternalTotal());
+                            return d3.descending(a.getExternalTotal(), b.getExternalTotal());
 
                         });
                     break;
                     case "total":
                         rows.sort(function(a,b) {
                             // return a.TotalCap - b.TotalCap;
-                            return d3.ascending(a.getTotal(), b.getTotal());
+                            return d3.descending(a.getTotal(), b.getTotal());
                         });
                     break;
 
@@ -184,8 +189,7 @@
                 rows.transition()
                 .duration(500)
                 .attr("y",function(d,i){
-                    console.log(i + ":" + d.Country);
-                    return yScale(i) + titlePadding;
+                    return yScale(i);
                 });
 
         });
@@ -200,7 +204,7 @@
                 svg.append("rect")
                 .attr("id",  "r" + i)
                 .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
-                .attr("y",  yScale(i) + (yScale(1)/2) - 0.5 + titlePadding)
+                .attr("y",  yScale(i) + (yScale(1)/2) - 0.5)
                 .attr("height", 1)
                 .attr("width", ( dataDisplayRange / 2) - xScale(d.getInternalTotal() ))
                 .attr("fill", "#000000")
@@ -211,7 +215,7 @@
             svg.append("text")
             .attr("id",  "t" + i)
             .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2) - 30)
-            .attr("y",  yScale(i) + 5 + titlePadding )
+            .attr("y",  yScale(i) + 5)
             .attr("font-family", "'PT Mono', monospace")
             .attr("font-size", "13px")
             .attr("text-anchor", "end")
@@ -221,7 +225,7 @@
             svg.append("text")
             .attr("id",  "country" + i)
             .attr("x",  width  )
-            .attr("y",  yScale(i) + 5 + titlePadding)
+            .attr("y",  yScale(i) + 5)
             .attr("class", "country-label")
             .text(d.Country);
           };
@@ -246,9 +250,9 @@
             .attr("width", function(d) {
                 return xScale(d.getTotal()); })
             .attr("height", function(d,i) {
-                return  yScale(1) - 2; })
+                return  yScale(1) - 2 - titlePadding; })
             .attr("y", function(d,i){
-                return yScale(i) + titlePadding;
+                return yScale(i);
             })
             .attr("x", function(d,i){
                 return  ( width / 2 ) - xScale(d.getInternalTotal());
@@ -311,7 +315,7 @@
         .attr("width", 0)
         .attr("height", 0)
         .attr("y", function(d,i){
-            return yScale(i) + titlePadding;
+            return yScale(i);
         })
         .attr("x", width/2);
         drawGraphTitle();
