@@ -1,8 +1,10 @@
 <!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css?family=PT+Mono|PT+Sans:400,700" rel="stylesheet">
 <script src="https://d3js.org/d3.v4.min.js"></script>
-<script src="node_modules/jquery/dist/jquery.min.js"></script>
-
+<script
+  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
+  integrity="sha256-k2WSCIexGzOj3Euiig+TlR8gA0EmPjuc79OEeY5L45g="
+  crossorigin="anonymous"></script>
 <style>
 body {
   overflow: hidden;
@@ -167,6 +169,7 @@ body {
             if(globalFilters.footprintFilter.indexOf("domestic") != -1){
               externalTotal += this["InternalDomestic" + ((globalFilters.perCapita)? "Cap" : "")];
             }
+            console.log(externalTotal);
             return externalTotal;
           };
           d.getExternalTotal = function(){
@@ -327,7 +330,11 @@ body {
           .ease(d3.easeExpOut)
           .duration(600)
           .attr("width", function(d) {
-            return (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
+            var w = (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
+            if(typeof w == "number" && w > 0){
+              return w;
+            }
+            return 0;
           })
           .attr("height", function(d,i) {
             return  yScale(1) - titlePadding; })
