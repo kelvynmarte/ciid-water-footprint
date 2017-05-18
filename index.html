@@ -180,9 +180,7 @@ body {
             if(globalFilters.footprintFilter.indexOf("industrial") != -1){
               externalTotal += this["ExternalIndustry" + ((globalFilters.perCapita)? "Cap" : "")];
             }
-            if(false == globalFilters.perCapita && globalFilters.footprintFilter.indexOf("domestic") != -1){
-              externalTotal += this["InternalDomestic" + ((globalFilters.perCapita)? "Cap" : "")];
-            }
+            // No external domestic
             return externalTotal;
           };
           d.getTotal = function(){
