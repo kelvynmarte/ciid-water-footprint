@@ -5,42 +5,6 @@
 .chart {
     width: 100%;
 }
-.chart > div {
-    width: calc(50% - 6px);
-    min-height: 1vh;
-    float: left;
-}
-.internal {
-    position: relative;
-    float: left;
-    border-right: 0px solid #FFF; 
-}
-.internal:after {
-    display: blocK;
-    background-color: #FFF;
-    opacity: 0.3;
-    width: 4px;
-    height: 100vh;
-    position: absolute;
-    content: '';
-    right: -2px;
-}
-
-.chart > div > div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 0px;
-  margin-bottom: 0px;
-  color: black;
-}
-.internal > div{
-    float: right;
-    clear: both;
-}
-
-.internal > div:hover {
-}
 
 </style>
 <body>
@@ -52,11 +16,14 @@
     // var regionColors = ["#8081b9", "#8cb9da", "#7bc1d8", "#003845", "#588ca4", "#145b9b", "#67aadf", "#61bae4", "#a7dea", "#01a4bf", "#45a889"];
     //var regionColors = ["#8f57a2", "#fcb71e", "#f58023", "#bdd549", "#9cc841", "#9ddaec", "#1aabd8", "#3d81c2", "#244d74", "#fae83e", "#46bea2"];
         var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
-
     var width = window.innerWidth - 40;
     var height = window.innerHeight - 40;
     var dataDisplayRange = width - 600
     var svg = d3.select(".chart").append("svg").attr("width", width).attr("height", height);
+
+    var getRowColor = function(d){
+        return "#0195AE";
+    }
 
     d3.csv("waterFootprint.csv", function(error, data) {
         // Convert strings to numbers.
@@ -101,7 +68,7 @@
         .attr("width", function(d) { 
             return xScale(d.TotalCap); })
         .attr("height", function(d,i) { 
-            return  yScale(1); })
+            return  yScale(1) - 2; })
         .attr("y", function(d,i){
             return yScale(i);
         })
@@ -109,7 +76,7 @@
             return  ( width / 2 ) - xScale(d.InternalTotalCap);
         })
         .attr("fill", function(d) { 
-            return  regionColors[regions.indexOf(d.Region)]; 
+            return  getRowColor(d); 
         })
         .on("mouseover", function(d, i) { 
             console.log(d, "mouseover");
@@ -142,11 +109,11 @@
             .text( Math.round(xScale(d.InternalTotalCap)));
           })
         .on("mouseout", function(d, i) {  // Add interactivity
+            // d3.select(this).attr(
+            //   "height", yScale(1)
+            // );
             d3.select(this).attr(
-              "height", yScale(1)
-            );
-            d3.select(this).attr(
-              "fill", regionColors[regions.indexOf(d.Region)]
+              "fill", getRowColor(d)
             );
             d3.select("#t" + i).remove();
             d3.select("#r" + i).remove();
@@ -164,12 +131,12 @@
         // .attr("fill", "red");
 
         svg.append("rect")
-            .attr("x", (width/2) - 1)
+            .attr("x", (width/2) - 2)
             .attr("y", 0)
             .attr("height", height)
-            .attr("width", 2)
+            .attr("width", 4)
             .attr("fill", "#FFFFFF")
-            .style("opacity", 0.3);
+            .style("opacity", 1);
 
 
             //.text(function(d) { return d.Country; });
