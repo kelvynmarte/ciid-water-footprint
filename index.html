@@ -62,6 +62,7 @@
     var dataDisplayRange = width - 600
     var svg = d3.select(".chart").append("svg").attr("width", width).attr("height", height);
     var titlePadding = 30;
+    var globalFilters = {perCapita: true};
 
     var getRowColor = function(d){
         return regionColors[regions.indexOf(d.Region)];
@@ -73,24 +74,42 @@
         // Convert strings to numbers.
         data.forEach(function(d) {
             d.InternalTotal = +d.InternalTotal;
-            d.ExternalTotal = +d.ExternalTotal;
             d.InternalTotalCap = +d.InternalTotalCap;
+            d.ExternalTotal = +d.ExternalTotal;
             d.ExternalTotalCap = +d.ExternalTotalCap;
+            d.Total = +d.Total;
             d.TotalCap = +d.TotalCap;
             d.Country = d.Country.trim();
-        });
+            d.getInternalTotal = function(){
+              if(globalFilters.perCapita){
+                return d.InternalTotalCap;
+              }else{
+                return d.InternalTotal;
+              }
+            };
+            d.getExternalTotal = function(){
+              if(globalFilters.perCapita){
+                return d.ExternalTotalCap;
+              }else{
+                return d.ExternalTotal;
+              }
+            };
+            d.getTotal = function(){
+              if(globalFilters.perCapita){
+                return d.TotalCap;
+              }else{
+                return d.Total;
+              }
+            };
 
-        // Sort by total cap 
-        /*data.sort(function(a,b) { 
-            return a.TotalCap - b.TotalCap; 
-        });*/
+        });
 
         // Sort by region
-        data.sort(function(a,b) { 
-            return regions.indexOf(a.Region) - regions.indexOf(b.Region); 
+        data.sort(function(a,b) {
+            return regions.indexOf(a.Region) - regions.indexOf(b.Region);
         });
 
-        var maxOne = d3.max(data, function(d) { return Math.max(d.ExternalTotalCap, d.InternalTotalCap); });
+        var maxOne = d3.max(data, function(d) { return Math.max(d.getExternalTotal(), d.getInternalTotal()); });
 
         var xScale = d3.scaleLinear()
         .domain([0, maxOne])
@@ -107,62 +126,58 @@
 
                 switch($(e.target).val()){
                     case "region":
-                        rows.sort(function(a,b) { 
-                            return d3.ascending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region); 
+                        rows.sort(function(a,b) {
+                            return d3.ascending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
                         });
                     break;
                     case "inside":
-                        rows.sort(function(a,b) { 
-                            // return a.InternalTotalCap - b.InternalTotalCap; 
-                            return d3.ascending(a.InternalTotalCap, b.InternalTotalCap);
+                        rows.sort(function(a,b) {
+                            // return a.InternalTotalCap - b.InternalTotalCap;
+                            return d3.ascending(a.getInternalTotal(), b.getInternalTotal());
                         });
                     break;
                     case "outside":
-                        rows.sort(function(a,b) { 
-                            // return a.ExternalTotalCap - b.ExternalTotalCap; 
-                            return d3.ascending(a.ExternalTotalCap, b.ExternalTotalCap);
+                        rows.sort(function(a,b) {
+                            // return a.ExternalTotalCap - b.ExternalTotalCap;
+                            return d3.ascending(a.getExternalTotal(), b.getExternalTotal());
 
                         });
                     break;
                     case "total":
-                        rows.sort(function(a,b) { 
-                            // return a.TotalCap - b.TotalCap; 
-                            return d3.ascending(a.TotalCap, b.TotalCap);
+                        rows.sort(function(a,b) {
+                            // return a.TotalCap - b.TotalCap;
+                            return d3.ascending(a.getTotal(), b.getTotal());
                         });
                     break;
 
                 }
+                // Reselect elements and apply transition
+                rows = svg.select("g.dataRows").selectAll("rect");
+                rows
+                .on("mouseover", mouseOverRow)
+                .on("mouseout", mouseOutRow);
+                rows.transition()
+                .duration(500)
+                .attr("y",function(d,i){
+                    console.log(i + ":" + d.Country);
+                    return yScale(i) + titlePadding;
+                });
 
-                    rows = svg.select("g.dataRows").selectAll("rect");
-                    rows.transition()
-                    .duration(500)            
-                    .attr("y",function(d,i){
-                        console.log(i + ":" + d.Country);
-                        return yScale(i) + titlePadding;
-                    });
-
-
-
-                //update all circles to new positions
-                // rows.transition()
-                // .duration(500)
-                // .attr("transform", function(d, i) { return "translate(" + 30 + "," + yScale(i) + titlePadding + ")"});
-            
         });
 
-         var mouseOverRow = function(d, i) { 
+         var mouseOverRow = function(d, i) {
             d3.select(this).attr(
               "fill", "#EDAE00"
             );
 
             // Draw Row Line
-            if(( dataDisplayRange / 2) - xScale(d.InternalTotalCap ) - 10 > 0){
+            if(( dataDisplayRange / 2) - xScale(d.getInternalTotal() ) - 10 > 0){
                 svg.append("rect")
                 .attr("id",  "r" + i)
                 .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
                 .attr("y",  yScale(i) + (yScale(1)/2) - 0.5 + titlePadding)
                 .attr("height", 1)
-                .attr("width", ( dataDisplayRange / 2) - xScale(d.InternalTotalCap ))
+                .attr("width", ( dataDisplayRange / 2) - xScale(d.getInternalTotal() ))
                 .attr("fill", "#000000")
                 .style("opacity", 0.2);
             }
@@ -175,21 +190,18 @@
             .attr("font-family", "'PT Mono', monospace")
             .attr("font-size", "13px")
             .attr("text-anchor", "end")
-            .text( Math.round(xScale(d.InternalTotalCap)));
+            .text( Math.round(xScale(d.getInternalTotal())));
 
             // Country Label
             svg.append("text")
             .attr("id",  "country" + i)
             .attr("x",  width  )
             .attr("y",  yScale(i) + 5 + titlePadding)
-            .attr("class", "country-label")          
+            .attr("class", "country-label")
             .text(d.Country);
           };
 
           var mouseOutRow = function(d, i) {  // Add interactivity
-            // d3.select(this).attr(
-            //   "height", yScale(1)
-            // );
             d3.select(this).attr(
               "fill", getRowColor(d)
             );
@@ -205,18 +217,18 @@
         .data(data)
         .enter()
         .append("rect")
-        .attr("width", function(d) { 
-            return xScale(d.TotalCap); })
-        .attr("height", function(d,i) { 
+        .attr("width", function(d) {
+            return xScale(d.getTotal()); })
+        .attr("height", function(d,i) {
             return  yScale(1) - 2; })
         .attr("y", function(d,i){
             return yScale(i) + titlePadding;
         })
         .attr("x", function(d,i){
-            return  ( width / 2 ) - xScale(d.InternalTotalCap);
+            return  ( width / 2 ) - xScale(d.getInternalTotal());
         })
-        .attr("fill", function(d) { 
-            return  getRowColor(d); 
+        .attr("fill", function(d) {
+            return  getRowColor(d);
         })
         .on("mouseover", mouseOverRow)
         .on("mouseout", mouseOutRow)
@@ -232,7 +244,7 @@
             .attr("pointer-events", "none")
             .style("opacity", 1);
 
-        
+
         var drawGraphTitle = function(){
             var graphTitleTopPadding = 20;
             var graphTitleCenteradding = 2;
@@ -241,23 +253,19 @@
                 .attr("x",  (width / 2) - graphTitleCenteradding  )
                 .attr("y", graphTitleTopPadding)
                 .attr("class", "graph-title")
-                .attr("text-anchor", "end")   
-                .attr("fill", "#919191")       
+                .attr("text-anchor", "end")
+                .attr("fill", "#919191")
                 .text("Inside Country");
 
             svg.append("text")
                 .attr("x",  (width / 2) + graphTitleCenteradding  )
                 .attr("y", graphTitleTopPadding)
                 .attr("class", "graph-title")
-                .attr("text-anchor", "start")    
-                .attr("fill", "#000000")       
+                .attr("text-anchor", "start")
+                .attr("fill", "#000000")
                 .text("Outside Country");
         }
         drawGraphTitle();
-
-
-
-
 
     });
 </script>
