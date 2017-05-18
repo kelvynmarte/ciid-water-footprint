@@ -187,11 +187,7 @@ body {
                 rows
                 .on("mouseover", mouseOverRow)
                 .on("mouseout", mouseOutRow);
-                rows.transition()
-                .duration(500)
-                .attr("y",function(d,i){
-                    return yScale(i);
-                });
+                updateRows(rows);
         });
 
          var mouseOverRow = function(d, i) {
@@ -246,7 +242,8 @@ body {
 
             rows
             .transition()
-            .duration(500)
+            .ease(d3.easeExpOut)
+            .duration(600)
             .attr("width", function(d) {
                 return (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
             })
@@ -265,6 +262,8 @@ body {
             rows
             .on("mouseover", mouseOverRow)
             .on("mouseout", mouseOutRow);
+
+
           };
 
 
@@ -286,7 +285,8 @@ body {
             .attr("pointer-events", "none")
             .style("opacity", 0)
             .transition()
-            .duration(800)
+            .ease(d3.easeExpOut)
+            .duration(1000)
             .style("opacity", 1);
 
             graphTitleGroup.append("text")
