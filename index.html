@@ -1,5 +1,7 @@
 <!DOCTYPE html>
 <link href="https://fonts.googleapis.com/css?family=PT+Mono|PT+Sans:400,700" rel="stylesheet">
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script src="node_modules/jquery/dist/jquery.min.js"></script>
 
 <style>
 .chart {
@@ -12,21 +14,61 @@
     text-anchor: end;
     fill: #919191;
 }
-
+.graph-title {
+    font-family: 'PT Mono', monospace;
+    font-size: 14px;
+    text-transform: uppercase;
+}
+.hover-menu-container {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+}
+.sort-menu-comtainer {
+    font-family: 'PT Mono', monospace;
+    font-size: 12px;
+    text-transform: uppercase;
+    color: #1B63A7;
+    border: 2px solid #1B63A7;
+    padding: 10px 10px;
+}
+.sort-menu-comtainer h2 {
+    margin: 0 0 10px 0;
+}
 </style>
 <body>
 <div class="chart">
 </div>
-<script src="https://d3js.org/d3.v4.min.js"></script>
+
+<div class="hover-menu-container">
+
+    <div class="sort-menu-comtainer">
+        <h2>Sort By</h2>
+        <form>
+            <input id="sortbyr1" type="radio" name="sortby" value="region"><label for="sortbyr1">Region</label><br>
+            <input id="sortbyr2" type="radio" name="sortby" value="inside"><label for="sortbyr2">Inside Country</label><br>
+            <input id="sortbyr3" type="radio" name="sortby" value="outside"><label for="sortbyr3">Outside Country</label><br>
+            <input id="sortbyr4" type="radio" name="sortby" value="total"><label for="sortbyr4">Total</label><br>
+        </form>
+    </div>
+
+</div>
+
 <script>
     var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
     // var regionColors = ["#8081b9", "#8cb9da", "#7bc1d8", "#003845", "#588ca4", "#145b9b", "#67aadf", "#61bae4", "#a7dea", "#01a4bf", "#45a889"];
     //var regionColors = ["#8f57a2", "#fcb71e", "#f58023", "#bdd549", "#9cc841", "#9ddaec", "#1aabd8", "#3d81c2", "#244d74", "#fae83e", "#46bea2"];
-        var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
+    
+    $("input[name=sortby]:radio").change(function (e) {
+        console.log($(e.target).val());
+    });
+    
+    var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
     var width = window.innerWidth - 20;
     var height = window.innerHeight - 40;
     var dataDisplayRange = width - 600
     var svg = d3.select(".chart").append("svg").attr("width", width).attr("height", height);
+    var titlePadding = 30;
 
     var getRowColor = function(d){
         return "#0195AE";
@@ -78,31 +120,34 @@
             d3.select(this).attr(
               "fill", "#EDAE00"
             );
+
+            // Draw Row Line
             if(( dataDisplayRange / 2) - xScale(d.InternalTotalCap ) - 10 > 0){
                 svg.append("rect")
                 .attr("id",  "r" + i)
                 .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
-                .attr("y",  yScale(i) + (yScale(1)/2) - 0.5 )
+                .attr("y",  yScale(i) + (yScale(1)/2) - 0.5 + titlePadding)
                 .attr("height", 1)
-                .attr("width", ( dataDisplayRange / 2) - xScale(d.InternalTotalCap ) - 10)
+                .attr("width", ( dataDisplayRange / 2) - xScale(d.InternalTotalCap ))
                 .attr("fill", "#000000")
                 .style("opacity", 0.2);
             }
 
-
+            // Row Label
             svg.append("text")
             .attr("id",  "t" + i)
             .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2) - 30)
-            .attr("y",  yScale(i) +5 )
+            .attr("y",  yScale(i) + 5 + titlePadding )
             .attr("font-family", "'PT Mono', monospace")
             .attr("font-size", "13px")
             .attr("text-anchor", "end")
             .text( Math.round(xScale(d.InternalTotalCap)));
 
+            // Country Label
             svg.append("text")
             .attr("id",  "country" + i)
             .attr("x",  width  )
-            .attr("y",  yScale(i) + 5 )
+            .attr("y",  yScale(i) + 5 + titlePadding)
             .attr("class", "country-label")          
             .text(d.Country);
           };
@@ -129,7 +174,7 @@
         .attr("height", function(d,i) { 
             return  yScale(1) - 2; })
         .attr("y", function(d,i){
-            return yScale(i);
+            return yScale(i) + titlePadding;
         })
         .attr("x", function(d,i){
             return  ( width / 2 ) - xScale(d.InternalTotalCap);
@@ -160,6 +205,31 @@
             .attr("fill", "#FFFFFF")
             .attr("pointer-events", "none")
             .style("opacity", 1);
+
+        
+        var drawGraphTitle = function(){
+            var graphTitleTopPadding = 20;
+            var graphTitleCenteradding = 2;
+
+            svg.append("text")
+                .attr("x",  (width / 2) - graphTitleCenteradding  )
+                .attr("y", graphTitleTopPadding)
+                .attr("class", "graph-title")
+                .attr("text-anchor", "end")   
+                .attr("fill", "#919191")       
+                .text("Inside Country");
+
+            svg.append("text")
+                .attr("x",  (width / 2) + graphTitleCenteradding  )
+                .attr("y", graphTitleTopPadding)
+                .attr("class", "graph-title")
+                .attr("text-anchor", "start")    
+                .attr("fill", "#000000")       
+                .text("Outside Country");
+        }
+        drawGraphTitle();
+
+
 
 
 
