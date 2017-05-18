@@ -8,116 +8,188 @@ body {
   overflow: hidden;
 }
 .chart {
-    width: 100%;
+  width: 100%;
 }
 
 .country-label {
-    font-family: 'PT Mono', monospace;
-    font-size: 11px;
-    text-anchor: end;
-    fill: #919191;
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  text-anchor: end;
+  fill: #919191;
 }
 .graph-title {
-    font-family: 'PT Mono', monospace;
-    font-size: 14px;
-    text-transform: uppercase;
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  text-transform: uppercase;
 }
+
+.description-container {
+  position: fixed;
+  top: 28px;
+  left: 20px;
+  padding: 0px 8px;
+  width: 220px;
+}
+
+.description-container h2 {
+  font-family: 'PT Mono', monospace;
+  font-size: 28px;
+  color: #666666;
+  text-transform: uppercase;
+  padding: 0 0;
+  line-height: 38px;
+  margin-top: 0;
+}
+
+.description-container p {
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  color: #666666;
+  line-height: 19px
+}
+
 .menu-container {
-    position: fixed;
-    top: 20px;
-    left: 20px;
+  position: fixed;
+  bottom: 30px;
+  left: 20px;
+  padding: 0px 8px;
 }
-.sort-menu-comtainer {
-    font-family: 'PT Mono', monospace;
-    font-size: 12px;
-    text-transform: uppercase;
-    color: #1B63A7;
-    border: 2px solid #1B63A7;
-    padding: 10px 10px;
+
+.menu-container label {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #666666;
+  line-height: 19px;
 }
-.sort-menu-comtainer h2 {
-    margin: 0 0 10px 0;
+
+.menu-container h3 {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #666666;
+  line-height: 19px;
+  text-transform: uppercase;
+}
+
+.DividerLine3 {
+
+  width:50px; height:1.5px; background: #B3B3B3;
 }
 </style>
 <body>
-<div class="chart">
-</div>
+  <div class="chart">
+  </div>
 
-<div class="menu-container">
-    <div class="sort-menu-comtainer">
-        <h2>Sort By</h2>
-        <form>
-            <input id="sortbyr1" type="radio" name="sortby" value="region" checked="checked"><label for="sortbyr1">Region</label><br>
-            <input id="sortbyr2" type="radio" name="sortby" value="inside"><label for="sortbyr2">Inside Country</label><br>
-            <input id="sortbyr3" type="radio" name="sortby" value="outside"><label for="sortbyr3">Outside Country</label><br>
-            <input id="sortbyr4" type="radio" name="sortby" value="total"><label for="sortbyr4">Total</label><br>
-        </form>
-        <h2>Filters</h2>
-        <form>
-            <input id="capitafilterr1" type="radio" name="capitafilter" value="capita" checked="checked"><label for="capitafilterr1">Per Capita</label><br>
-            <input id="capitafilterr2" type="radio" name="capitafilter" value="country"><label for="capitafilterr2">Per Country (log)</label><br>
-        </form>
+  <div class="description-container">
+    <h2>National<br>
+      Water <br>
+      Footprint</h2>
+
+      <p>See the water footprint of a country and of each citizen.</p>
+      <p>Find out how much of that footprint lies within a country (<i>internal</i>) and how much is related to water used for imported products or ingredients (<i>external</i>).</p>
+
     </div>
-</div>
-
-<script>
 
 
+    <div class="menu-container">
 
-    var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
-    var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
+      <h3>Sort by</h3>
 
-    var titlePadding = 30;
-    var width = window.innerWidth - 20;
-    var height = window.innerHeight - titlePadding;
-    var dataDisplayRange = width - 600
-    var svg = d3.select(".chart").append("svg").attr("width", window.innerWidth).attr("height", window.innerHeight);
+      <form>
+        <input id="sortbyr1" type="radio" name="sortby" value="region" checked="checked"> <label for="sortbyr1">Continent</label><br>
+        <input id="sortbyr2" type="radio" name="sortby" value="inside"> <label for="sortbyr2">Internal Water Footprint</label><br>
+        <input id="sortbyr3" type="radio" name="sortby" value="outside"> <label for="sortbyr3">External Water Footprint</label><br>
+        <input id="sortbyr4" type="radio" name="sortby" value="total"> <label for="sortbyr4">Total Water Footprint</label><br>
+      </form>
+      <br>
+      <h3>Filter</h3>
+      <form>
+        <input id="capitafilterr1" type="radio" name="capitafilter" value="capita" checked="checked"> <label for="capitafilterr1">Footprint per Capita</label><br>
+        <input id="capitafilterr2" type="radio" name="capitafilter" value="country"> <label for="capitafilterr2">Footprint per Country <small>(log value)</small></label><br>
+      </form>
+      <br>
+      <div class="DividerLine3"></div>
+        <form>
+          <br>
+          <input id="footprintfilter1" type="checkbox" name="footprintfilter" value="agriculture" checked="checked"> <label for="footprintfilter1">Agriculture Water Footprint</label><br>
+          <input id="footprintfilter2" type="checkbox" name="footprintfilter" value="industrial" checked="checked"> <label for="footprintfilter2">Industrial Water Footprint</label><br>
+          <input id="footprintfilter3" type="checkbox" name="footprintfilter" value="domestic" checked="checked"> <label for="footprintfilter3">Domestic Water Footprint</label><br>
+        </form>
+      </div>
 
-    var globalFilters = {perCapita: true, xScaleLog: false};
+      <script>
+      var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
+      var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
 
-    var getRowColor = function(d){
+      var titlePadding = 30;
+      var width = window.innerWidth - 20;
+      var height = window.innerHeight - titlePadding;
+      var dataDisplayRange = width - 600
+      var svg = d3.select(".chart").append("svg").attr("width", window.innerWidth).attr("height", window.innerHeight);
+
+      var globalFilters = {perCapita: true, xScaleLog: false, footprintFilter: ["agriculture", "industrial", "domestic"]};
+
+      var getRowColor = function(d){
         return regionColors[regions.indexOf(d.Region)];
-        // return "#0195AE";
-    }
+      }
 
-    d3.csv("waterFootprint.csv", function(error, data) {
+      d3.csv("waterFootprint.csv", function(error, data) {
 
         // Convert strings to numbers.
         data.forEach(function(d) {
-            d.InternalTotal = +d.InternalTotal;
-            d.InternalTotalCap = +d.InternalTotalCap;
-            d.ExternalTotal = +d.ExternalTotal;
-            d.ExternalTotalCap = +d.ExternalTotalCap;
-            d.Total = +d.Total;
-            d.TotalCap = +d.TotalCap;
-            d.Country = d.Country.trim();
-            d.getInternalTotal = function(){
-              if(globalFilters.perCapita){
-                return d.InternalTotalCap;
-              }else{
-                return d.InternalTotal;
-              }
-            };
-            d.getExternalTotal = function(){
-              if(globalFilters.perCapita){
-                return d.ExternalTotalCap;
-              }else{
-                return d.ExternalTotal;
-              }
-            };
-            d.getTotal = function(){
-              if(globalFilters.perCapita){
-                return d.TotalCap;
-              }else{
-                return d.Total;
-              }
-            };
+          d.InternalAgriculture = +d.InternalAgriculture;
+          d.ExternalAgriculture = +d.ExternalAgriculture;
+          d.InternalIndustry = +d.InternalIndustry;
+          d.ExternalIndustry = +d.ExternalIndustry;
+          d.InternalDomestic = +d.InternalDomestic;
+          d.InternalAgricultureCap = +d.InternalAgricultureCap;
+          d.ExternalAgricultureCap = +d.ExternalAgricultureCap;
+          d.InternalIndustryCap = +d.InternalIndustryCap;
+          d.ExternalIndustryCap = +d.ExternalIndustryCap;
+          d.InternalDomesticCap = +d.InternalDomesticCap;
+
+          d.InternalTotal = +d.InternalTotal;
+          d.InternalTotalCap = +d.InternalTotalCap;
+          d.ExternalTotal = +d.ExternalTotal;
+          d.ExternalTotalCap = +d.ExternalTotalCap;
+          d.Total = +d.Total;
+          d.TotalCap = +d.TotalCap;
+          d.Country = d.Country.trim();
+
+          d.getInternalTotal = function(){
+            var externalTotal = 0;
+            if(globalFilters.footprintFilter.indexOf("agriculture") != -1){
+              externalTotal += this["InternalAgriculture" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            if(globalFilters.footprintFilter.indexOf("industrial") != -1){
+              externalTotal += this["InternalIndustry" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            if(globalFilters.footprintFilter.indexOf("domestic") != -1){
+              externalTotal += this["InternalDomestic" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            return externalTotal;
+          };
+          d.getExternalTotal = function(){
+            var externalTotal = 0;
+            if(globalFilters.footprintFilter.indexOf("agriculture") != -1){
+              externalTotal += this["ExternalAgriculture" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            if(globalFilters.footprintFilter.indexOf("industrial") != -1){
+              externalTotal += this["ExternalIndustry" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            if(false == globalFilters.perCapita && globalFilters.footprintFilter.indexOf("domestic") != -1){
+              externalTotal += this["InternalDomestic" + ((globalFilters.perCapita)? "Cap" : "")];
+            }
+            return externalTotal;
+          };
+          d.getTotal = function(){
+            return this.getInternalTotal() + this.getExternalTotal();
+          };
 
         });
 
         // Sort by region
         data.sort(function(a,b) {
-            return regions.indexOf(a.Region) - regions.indexOf(b.Region);
+          return regions.indexOf(a.Region) - regions.indexOf(b.Region);
         });
 
         var xScale = d3.scaleLinear()
@@ -138,125 +210,138 @@ body {
           xScaleLog.domain([Math.exp(0), maxOne]);
         }
 
+        // Footprint Filter
+        $("input[name=footprintfilter]:checkbox").change(function (e) {
+          var footprintfilter = [];
+          $('input[name=footprintfilter]:checkbox:checked').each(function() {
+            footprintfilter.push($(this).val());
+          });
+          console.log(footprintfilter);
+          globalFilters.footprintFilter = footprintfilter;
+          var rows = svg.select("g.dataRows").selectAll("rect");
+          updateRows(rows);
+        });
+
         // Capita Filter
         $("input[name=capitafilter]:radio").change(function (e) {
-            switch($(e.target).val()){
-                case "capita":
-                  globalFilters.perCapita = true;
-                  globalFilters.xScaleLog = false;
-                break;
-                case "country":
-                  globalFilters.perCapita = false;
-                  globalFilters.xScaleLog = true;
-                break;
-              }
-              var rows = svg.select("g.dataRows").selectAll("rect");
-              updateRows(rows);
-          });
+          switch($(e.target).val()){
+            case "capita":
+            globalFilters.perCapita = true;
+            globalFilters.xScaleLog = false;
+            break;
+            case "country":
+            globalFilters.perCapita = false;
+            globalFilters.xScaleLog = true;
+            break;
+          }
+          var rows = svg.select("g.dataRows").selectAll("rect");
+          updateRows(rows);
+        });
 
         // Change sorting
         $("input[name=sortby]:radio").change(function (e) {
-                var rows = svg.select("g.dataRows").selectAll("rect");
+          var rows = svg.select("g.dataRows").selectAll("rect");
 
-                switch($(e.target).val()){
-                    case "region":
-                        rows.sort(function(a,b) {
-                            return d3.descending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
-                        });
-                    break;
-                    case "inside":
-                        rows.sort(function(a,b) {
-                            return d3.descending(a.getInternalTotal(), b.getInternalTotal());
-                        });
-                    break;
-                    case "outside":
-                        rows.sort(function(a,b) {
-                            return d3.descending(a.getExternalTotal(), b.getExternalTotal());
+          switch($(e.target).val()){
+            case "region":
+            rows.sort(function(a,b) {
+              return d3.descending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
+            });
+            break;
+            case "inside":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getInternalTotal(), b.getInternalTotal());
+            });
+            break;
+            case "outside":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getExternalTotal(), b.getExternalTotal());
 
-                        });
-                    break;
-                    case "total":
-                        rows.sort(function(a,b) {
-                            return d3.descending(a.getTotal(), b.getTotal());
-                        });
-                    break;
+            });
+            break;
+            case "total":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getTotal(), b.getTotal());
+            });
+            break;
 
-                }
-                // Reselect elements and apply transition
-                rows = svg.select("g.dataRows").selectAll("rect");
-                rows
-                .on("mouseover", mouseOverRow)
-                .on("mouseout", mouseOutRow);
-                updateRows(rows);
+          }
+          // Reselect elements and apply transition
+          rows = svg.select("g.dataRows").selectAll("rect");
+          rows
+          .on("mouseover", mouseOverRow)
+          .on("mouseout", mouseOutRow);
+          updateRows(rows);
         });
 
-         var mouseOverRow = function(d, i) {
-            d3.select(this).attr(
-              "fill", "#EDAE00"
-            );
+        var mouseOverRow = function(d, i) {
+          d3.select(this).attr(
+            "fill", "#EDAE00"
+          );
 
-            // Draw Row Line
-            if(( dataDisplayRange / 2) - xScale(d.getInternalTotal() ) - 10 > 0){
-                svg.append("rect")
-                .attr("id",  "r" + i)
-                .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
-                .attr("y",  yScale(i) + (yScale(1)/2) - 0.5)
-                .attr("height", 1)
-                .attr("width", ( dataDisplayRange / 2) - xScale(d.getInternalTotal() ))
-                .attr("fill", "#000000")
-                .style("opacity", 0.2);
-            }
+          // Draw Row Line
+          if(( dataDisplayRange / 2) - xScale(d.getInternalTotal() ) - 10 > 0){
+            svg.append("rect")
+            .attr("id",  "r" + i)
+            .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
+            .attr("y",  yScale(i) + (yScale(1)/2) - 0.5)
+            .attr("height", 1)
+            .attr("width", ( dataDisplayRange / 2) - xScale(d.getInternalTotal() ))
+            .attr("fill", "#000000")
+            .style("opacity", 0.2);
+          }
 
-            // Row Label
-            svg.append("text")
-            .attr("id",  "t" + i)
-            .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2) - 30)
-            .attr("y",  yScale(i) + 5)
-            .attr("font-family", "'PT Mono', monospace")
-            .attr("font-size", "13px")
-            .attr("text-anchor", "end")
-            .text( Math.round(xScale(d.getInternalTotal())));
+          // Row Label
+          svg.append("text")
+          .attr("id",  "t" + i)
+          .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2) - 30)
+          .attr("y",  yScale(i) + 5)
+          .attr("font-family", "'PT Mono', monospace")
+          .attr("font-size", "13px")
+          .attr("text-anchor", "end")
+          .text( Math.round(xScale(d.getInternalTotal())));
 
-            // Country Label
-            svg.append("text")
-            .attr("id",  "country" + i)
-            .attr("x",  width  )
-            .attr("y",  yScale(i) + 5)
-            .attr("class", "country-label")
-            .text(d.Country);
-          };
+          // Country Label
+          svg.append("text")
+          .attr("id",  "country" + i)
+          .attr("x",  width  )
+          .attr("y",  yScale(i) + 5)
+          .attr("class", "country-label")
+          .text(d.Country);
+        };
 
-          var mouseOutRow = function(d, i) {  // Add interactivity
-            d3.select(this).attr(
-              "fill", getRowColor(d)
-            );
-            d3.select("#t" + i).remove();
-            d3.select("#r" + i).remove();
-            d3.select("#country" + i).remove();
-          };
+        var mouseOutRow = function(d, i) {  // Add interactivity
+          d3.select(this).attr(
+            "fill", getRowColor(d)
+          );
+          d3.select("#t" + i).remove();
+          d3.select("#r" + i).remove();
+          d3.select("#country" + i).remove();
+        };
 
-          var updateRows = function(rows) {
-            console.log(svg.select("g.graph-title"));
-            // svg.select("g.graph-title").moveToFront();
-            updateXScaleDomain();
+        var updateRows = function(rows) {
+          console.log(svg.select("g.graph-title"));
+          // svg.select("g.graph-title").moveToFront();
+          updateXScaleDomain();
 
-            rows
-            .transition()
-            .ease(d3.easeExpOut)
-            .duration(600)
-            .attr("width", function(d) {
-                return (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
-            })
-            .attr("height", function(d,i) {
-                return  yScale(1) - 2 - titlePadding; })
+          rows
+          .transition()
+          .ease(d3.easeExpOut)
+          .duration(600)
+          .attr("width", function(d) {
+            return (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
+          })
+          .attr("height", function(d,i) {
+            return  yScale(1) - 2 - titlePadding; })
             .attr("y", function(d,i){
-                return yScale(i);
+              return yScale(i);
             })
             .attr("x", function(d,i){
-                return  ( width / 2 ) - (d.getInternalTotal() / d.getTotal()) * ((globalFilters.xScaleLog) ? xScaleLog(d.getInternalTotal()) : xScale(d.getInternalTotal()));
+              var xVal = ( width / 2 ) - (d.getInternalTotal() / d.getTotal()) * ((globalFilters.xScaleLog) ? xScaleLog(d.getInternalTotal()) : xScale(d.getInternalTotal()));
+              return  (xVal > 0) ? xVal : ( width / 2 );
             })
             .attr("fill", function(d) {
-                return  getRowColor(d);
+              return  getRowColor(d);
             });
 
             rows
@@ -272,7 +357,7 @@ body {
           // Draw Center Border
 
 
-        var drawGraphTitle = function(){
+          var drawGraphTitle = function(){
             var graphTitleTopPadding = 20;
             var graphTitleCenteradding = 2;
             var graphTitleGroup = svg.append("g").attr("class", "graph-title");
@@ -290,43 +375,43 @@ body {
             .style("opacity", 1);
 
             graphTitleGroup.append("text")
-                .attr("x",  (width / 2) - graphTitleCenteradding  )
-                .attr("y", graphTitleTopPadding)
-                .attr("class", "graph-title")
-                .attr("text-anchor", "end")
-                .attr("fill", "#919191")
-                .text("Inside Country");
+            .attr("x",  (width / 2) - graphTitleCenteradding  )
+            .attr("y", graphTitleTopPadding)
+            .attr("class", "graph-title")
+            .attr("text-anchor", "end")
+            .attr("fill", "#919191")
+            .text("Internal");
 
             graphTitleGroup.append("text")
-                .attr("x",  (width / 2) + graphTitleCenteradding  )
-                .attr("y", graphTitleTopPadding)
-                .attr("class", "graph-title")
-                .attr("text-anchor", "start")
-                .attr("fill", "#000000")
-                .text("Outside Country");
-        }
-        // Initial create rows
-        var rows = svg
-        .append("g")
-        .attr("class", "dataRows")
-        .selectAll("rect")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("width", 0)
-        .attr("height", 0)
-        .attr("y", function(d,i){
+            .attr("x",  (width / 2) + graphTitleCenteradding  )
+            .attr("y", graphTitleTopPadding)
+            .attr("class", "graph-title")
+            .attr("text-anchor", "start")
+            .attr("fill", "#000000")
+            .text("External");
+          }
+          // Initial create rows
+          var rows = svg
+          .append("g")
+          .attr("class", "dataRows")
+          .selectAll("rect")
+          .data(data)
+          .enter()
+          .append("rect")
+          .attr("width", 0)
+          .attr("height", 0)
+          .attr("y", function(d,i){
             return yScale(i);
-        })
-        .attr("x", width/2);
-        drawGraphTitle();
-        updateRows(rows);
+          })
+          .attr("x", width/2);
+          drawGraphTitle();
+          updateRows(rows);
 
 
 
 
 
 
-    });
-</script>
-</body>
+        });
+        </script>
+      </body>
