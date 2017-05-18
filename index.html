@@ -219,7 +219,7 @@ body {
           console.log(footprintfilter);
           globalFilters.footprintFilter = footprintfilter;
           var rows = svg.select("g.dataRows").selectAll("rect");
-          updateRows(rows);
+          updateSortingAndRows();
         });
 
         // Capita Filter
@@ -234,45 +234,15 @@ body {
             globalFilters.xScaleLog = true;
             break;
           }
-          var rows = svg.select("g.dataRows").selectAll("rect");
-          updateRows(rows);
+          updateSortingAndRows();
         });
 
         // Change sorting
         $("input[name=sortby]:radio").change(function (e) {
-          var rows = svg.select("g.dataRows").selectAll("rect");
-
-          switch($(e.target).val()){
-            case "region":
-            rows.sort(function(a,b) {
-              return d3.descending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
-            });
-            break;
-            case "inside":
-            rows.sort(function(a,b) {
-              return d3.descending(a.getInternalTotal(), b.getInternalTotal());
-            });
-            break;
-            case "outside":
-            rows.sort(function(a,b) {
-              return d3.descending(a.getExternalTotal(), b.getExternalTotal());
-
-            });
-            break;
-            case "total":
-            rows.sort(function(a,b) {
-              return d3.descending(a.getTotal(), b.getTotal());
-            });
-            break;
-
-          }
-          // Reselect elements and apply transition
-          rows = svg.select("g.dataRows").selectAll("rect");
-          rows
-          .on("mouseover", mouseOverRow)
-          .on("mouseout", mouseOutRow);
-          updateRows(rows);
+          updateSortingAndRows();
         });
+
+
 
         var mouseOverRow = function(d, i) {
           d3.select(this).attr(
@@ -318,6 +288,39 @@ body {
           d3.select("#r" + i).remove();
           d3.select("#country" + i).remove();
         };
+
+        var updateSortingAndRows = function(){
+          var rows = svg.select("g.dataRows").selectAll("rect");
+          switch($("input[name=sortby]:radio").val()){
+            case "region":
+            rows.sort(function(a,b) {
+              return d3.descending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region);
+            });
+            break;
+            case "inside":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getInternalTotal(), b.getInternalTotal());
+            });
+            break;
+            case "outside":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getExternalTotal(), b.getExternalTotal());
+
+            });
+            break;
+            case "total":
+            rows.sort(function(a,b) {
+              return d3.descending(a.getTotal(), b.getTotal());
+            });
+            break;
+          }
+          // Reselect elements and apply transition
+          rows = svg.select("g.dataRows").selectAll("rect");
+          rows
+          .on("mouseover", mouseOverRow)
+          .on("mouseout", mouseOutRow);
+          updateRows(rows);
+        }
 
         var updateRows = function(rows) {
           console.log(svg.select("g.graph-title"));
