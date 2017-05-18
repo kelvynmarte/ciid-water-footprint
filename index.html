@@ -56,13 +56,6 @@
 
 <script>
     var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
-    // var regionColors = ["#8081b9", "#8cb9da", "#7bc1d8", "#003845", "#588ca4", "#145b9b", "#67aadf", "#61bae4", "#a7dea", "#01a4bf", "#45a889"];
-    //var regionColors = ["#8f57a2", "#fcb71e", "#f58023", "#bdd549", "#9cc841", "#9ddaec", "#1aabd8", "#3d81c2", "#244d74", "#fae83e", "#46bea2"];
-    
-    $("input[name=sortby]:radio").change(function (e) {
-        console.log($(e.target).val());
-    });
-    
     var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
     var width = window.innerWidth - 20;
     var height = window.innerHeight - 40;
@@ -71,10 +64,12 @@
     var titlePadding = 30;
 
     var getRowColor = function(d){
-        return "#0195AE";
+        return regionColors[regions.indexOf(d.Region)];
+        // return "#0195AE";
     }
 
     d3.csv("waterFootprint.csv", function(error, data) {
+
         // Convert strings to numbers.
         data.forEach(function(d) {
             d.InternalTotal = +d.InternalTotal;
@@ -84,7 +79,6 @@
             d.TotalCap = +d.TotalCap;
             d.Country = d.Country.trim();
         });
-
 
         // Sort by total cap 
         /*data.sort(function(a,b) { 
@@ -96,7 +90,6 @@
             return regions.indexOf(a.Region) - regions.indexOf(b.Region); 
         });
 
-
         var maxOne = d3.max(data, function(d) { return Math.max(d.ExternalTotalCap, d.InternalTotalCap); });
 
         var xScale = d3.scaleLinear()
@@ -106,17 +99,58 @@
         .domain([0, data.length])
         .range([0, height]);
 
-        var barHeight = Math.floor((height / data.length));
+        // Change sorting
+        $("input[name=sortby]:radio").change(function (e) {
+            console.log($(e.target).val());
+
+                var rows = svg.select("g.dataRows").selectAll("rect");
+
+                switch($(e.target).val()){
+                    case "region":
+                        rows.sort(function(a,b) { 
+                            return d3.ascending(regions.indexOf(a.Region), regions.indexOf(b.Region));//regions.indexOf(a.Region) - regions.indexOf(b.Region); 
+                        });
+                    break;
+                    case "inside":
+                        rows.sort(function(a,b) { 
+                            // return a.InternalTotalCap - b.InternalTotalCap; 
+                            return d3.ascending(a.InternalTotalCap, b.InternalTotalCap);
+                        });
+                    break;
+                    case "outside":
+                        rows.sort(function(a,b) { 
+                            // return a.ExternalTotalCap - b.ExternalTotalCap; 
+                            return d3.ascending(a.ExternalTotalCap, b.ExternalTotalCap);
+
+                        });
+                    break;
+                    case "total":
+                        rows.sort(function(a,b) { 
+                            // return a.TotalCap - b.TotalCap; 
+                            return d3.ascending(a.TotalCap, b.TotalCap);
+                        });
+                    break;
+
+                }
+
+                    rows = svg.select("g.dataRows").selectAll("rect");
+                    rows.transition()
+                    .duration(500)            
+                    .attr("y",function(d,i){
+                        console.log(i + ":" + d.Country);
+                        return yScale(i) + titlePadding;
+                    });
 
 
+
+                //update all circles to new positions
+                // rows.transition()
+                // .duration(500)
+                // .attr("transform", function(d, i) { return "translate(" + 30 + "," + yScale(i) + titlePadding + ")"});
+            
+        });
 
          var mouseOverRow = function(d, i) { 
-
-             // Add interactivity
-            // Use D3 to select element, change color and size
-            // d3.select(this).attr(
-            //   "height", yScale(3)
-            // );
             d3.select(this).attr(
               "fill", "#EDAE00"
             );
@@ -165,7 +199,9 @@
           };
 
         svg
-        .selectAll("rect")
+        .append("g")
+        .attr("class", "dataRows")
+        .selectAll("none")
         .data(data)
         .enter()
         .append("rect")
@@ -186,16 +222,6 @@
         .on("mouseout", mouseOutRow)
         .append("svg:title")
         .text(function(d) { return d.Country; })
-        // .exit().exit()
-        // .append("text")
-        // .attr("x", function(d) { xScale(d.TotalCap); })
-        // .attr("y", function(d,i) { yScale(i); })
-        // .text( "TEST")
-        // .attr("font-family", "sans-serif")
-        // .attr("font-size", "20px")
-        // .attr("fill", "red");
-
-       
 
         svg.append("rect")
             .attr("x", (width/2) - 1.5)
