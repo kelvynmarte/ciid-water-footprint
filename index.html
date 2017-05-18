@@ -45,10 +45,15 @@
     <div class="sort-menu-comtainer">
         <h2>Sort By</h2>
         <form>
-            <input id="sortbyr1" type="radio" name="sortby" value="region"><label for="sortbyr1">Region</label><br>
+            <input id="sortbyr1" type="radio" name="sortby" value="region" checked="checked"><label for="sortbyr1">Region</label><br>
             <input id="sortbyr2" type="radio" name="sortby" value="inside"><label for="sortbyr2">Inside Country</label><br>
             <input id="sortbyr3" type="radio" name="sortby" value="outside"><label for="sortbyr3">Outside Country</label><br>
             <input id="sortbyr4" type="radio" name="sortby" value="total"><label for="sortbyr4">Total</label><br>
+        </form>
+        <h2>Filters</h2>
+        <form>
+            <input id="capitafilterr1" type="radio" name="capitafilter" value="capita" checked="checked"><label for="capitafilterr1">Per Capita</label><br>
+            <input id="capitafilterr2" type="radio" name="capitafilter" value="country"><label for="capitafilterr2">Per Country</label><br>
         </form>
     </div>
 
@@ -109,14 +114,34 @@
             return regions.indexOf(a.Region) - regions.indexOf(b.Region);
         });
 
-        var maxOne = d3.max(data, function(d) { return Math.max(d.getExternalTotal(), d.getInternalTotal()); });
-
         var xScale = d3.scaleLinear()
-        .domain([0, maxOne])
         .range([0, dataDisplayRange/2]);
         var yScale = d3.scaleLinear()
         .domain([0, data.length])
         .range([0, height]);
+
+        var updateXScaleDomain = function (){
+          var maxOne = d3.max(data, function(d) { return Math.max(d.getExternalTotal(), d.getInternalTotal()); });
+          xScale.domain([0, maxOne]);
+        }
+
+        // Capita Filter
+        $("input[name=capitafilter]:radio").change(function (e) {
+            console.log($(e.target).val());
+            switch($(e.target).val()){
+                case "capita":
+                  globalFilters.perCapita = true;
+                break;
+                case "country":
+                  globalFilters.perCapita = false;
+                break;
+              }
+              var rows = svg.select("g.dataRows").selectAll("rect");
+              updateRows(rows);
+
+
+            //updateGraph();
+          });
 
         // Change sorting
         $("input[name=sortby]:radio").change(function (e) {
@@ -210,46 +235,56 @@
             d3.select("#country" + i).remove();
           };
 
-        svg
-        .append("g")
-        .attr("class", "dataRows")
-        .selectAll("none")
-        .data(data)
-        .enter()
-        .append("rect")
-        .attr("width", function(d) {
-            return xScale(d.getTotal()); })
-        .attr("height", function(d,i) {
-            return  yScale(1) - 2; })
-        .attr("y", function(d,i){
-            return yScale(i) + titlePadding;
-        })
-        .attr("x", function(d,i){
-            return  ( width / 2 ) - xScale(d.getInternalTotal());
-        })
-        .attr("fill", function(d) {
-            return  getRowColor(d);
-        })
-        .on("mouseover", mouseOverRow)
-        .on("mouseout", mouseOutRow)
-        .append("svg:title")
-        .text(function(d) { return d.Country; })
+          var updateRows = function(rows) {
+            console.log(svg.select("g.graph-title"));
+            // svg.select("g.graph-title").moveToFront();
+            updateXScaleDomain();
 
-        svg.append("rect")
+            rows
+            .transition()
+            .duration(500)
+            .attr("width", function(d) {
+                return xScale(d.getTotal()); })
+            .attr("height", function(d,i) {
+                return  yScale(1) - 2; })
+            .attr("y", function(d,i){
+                return yScale(i) + titlePadding;
+            })
+            .attr("x", function(d,i){
+                return  ( width / 2 ) - xScale(d.getInternalTotal());
+            })
+            .attr("fill", function(d) {
+                return  getRowColor(d);
+            });
+
+            rows
+            .on("mouseover", mouseOverRow)
+            .on("mouseout", mouseOutRow);
+          };
+
+
+
+
+          // Draw Center Border
+
+
+        var drawGraphTitle = function(){
+            var graphTitleTopPadding = 20;
+            var graphTitleCenteradding = 2;
+            var graphTitleGroup = svg.append("g").attr("class", "graph-title");
+            graphTitleGroup.append("rect")
             .attr("x", (width/2) - 1.5)
             .attr("y", 0)
             .attr("height", height)
             .attr("width", 3)
             .attr("fill", "#FFFFFF")
             .attr("pointer-events", "none")
+            .style("opacity", 0)
+            .transition()
+            .duration(800)
             .style("opacity", 1);
 
-
-        var drawGraphTitle = function(){
-            var graphTitleTopPadding = 20;
-            var graphTitleCenteradding = 2;
-
-            svg.append("text")
+            graphTitleGroup.append("text")
                 .attr("x",  (width / 2) - graphTitleCenteradding  )
                 .attr("y", graphTitleTopPadding)
                 .attr("class", "graph-title")
@@ -257,7 +292,7 @@
                 .attr("fill", "#919191")
                 .text("Inside Country");
 
-            svg.append("text")
+            graphTitleGroup.append("text")
                 .attr("x",  (width / 2) + graphTitleCenteradding  )
                 .attr("y", graphTitleTopPadding)
                 .attr("class", "graph-title")
@@ -265,7 +300,27 @@
                 .attr("fill", "#000000")
                 .text("Outside Country");
         }
+        // Initial create rows
+        var rows = svg
+        .append("g")
+        .attr("class", "dataRows")
+        .selectAll("rect")
+        .data(data)
+        .enter()
+        .append("rect")
+        .attr("width", 0)
+        .attr("height", 0)
+        .attr("y", function(d,i){
+            return yScale(i) + titlePadding;
+        })
+        .attr("x", width/2);
         drawGraphTitle();
+        updateRows(rows);
+
+
+
+
+
 
     });
 </script>
