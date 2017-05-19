@@ -1,4 +1,7 @@
 <!DOCTYPE html>
+<html>
+<title>National Water Footprint</title>
+<link rel="icon" type="img/ico" href="favicon.ico">
 <link href="https://fonts.googleapis.com/css?family=PT+Mono|PT+Sans:400,700" rel="stylesheet">
 <script src="https://d3js.org/d3.v4.min.js"></script>
 <script
@@ -104,6 +107,20 @@ body {
   text-anchor: end;
 }
 
+#world-map {
+  position: fixed;
+  bottom: 26px;
+  right: 20px;
+  width: 150px;
+  transition: opacity 600ms;
+  transition-delay: 400ms;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+}
+
+#world-map.hide-map {
+  opacity: 0;
+}
+
 </style>
 <body>
   <div class="chart">
@@ -146,12 +163,15 @@ body {
         </form>
       </div>
 
+      <img id="world-map" src="map.svg" onerror="this.src='map.png'">.
+
       <script>
       // var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
       // var regionColors = ["#0a0d4f", "#13338e", "#1b63a7 ", "#5b85d4", "#89b6e4 ", "#c0eaff", "#90d7eb", "#70b0c5", "#0195ae", "#446c7f", "#2a434e"];
       var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
       var regionColors = ["#0a0d4f", "#13338e", "#13338e", "#5b85d4", "#5b85d4 ", "#c0eaff", "#c0eaff", "#c0eaff", "#c0eaff", "#446c7f", "#2a434e"];
-
+      // var regionColors = ["#8081b9", "#8cb9da", "#7bc1d8", "#003845", "#588ca4", "#145b9b", "#67aadf", "#61bae4", "#a7dea", "#01a4bf", "#45a889"];
+      // var regionColors = ["#8f57a2", "#fcb71e", "#f58023", "#bdd549", "#9cc841", "#9ddaec", "#1aabd8", "#3d81c2", "#244d74", "#fae83e", "#46bea2"];
       var titlePadding = 50;
       var width = window.innerWidth - 20;
       var height = window.innerHeight - titlePadding + 20;
@@ -163,6 +183,17 @@ body {
       var getRowColor = function(d){
         return regionColors[regions.indexOf(d.Region)];
       }
+
+      var mouseOutDelayCount = 0;
+
+      $(document).mousemove(function(e) {
+          if(e.pageY > (window.innerHeight - 260)){
+            $( "#world-map" ).addClass( "hide-map" );
+            mouseOutDelayCount = 0;
+          }else if(mouseOutDelayCount++ > 10){
+            $( "#world-map" ).removeClass( "hide-map" );
+          }
+      });
 
       d3.csv("waterFootprint.csv", function(error, data) {
 
@@ -498,12 +529,7 @@ body {
 
           drawGraphTitle();
           updateRows(rows);
-
-
-
-
-
-
         });
         </script>
       </body>
+      </html>
