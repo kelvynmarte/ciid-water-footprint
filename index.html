@@ -92,6 +92,18 @@ body {
 
   width:50px; height:1.5px; background: #B3B3B3;
 }
+
+.mouse-over-label {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #EDAE00;
+  fill: #EDAE00;
+  line-height: 16px;
+}
+.mouse-over-label.right {
+  text-anchor: end;
+}
+
 </style>
 <body>
   <div class="chart">
@@ -175,6 +187,14 @@ body {
           d.TotalCap = +d.TotalCap;
           d.Country = d.Country.trim();
 
+          d.getInternalPercent = function(){
+            return this.getInternalTotal() * 100 / this.getTotal();
+          };
+
+          d.getExternalPercent = function(){
+            return this.getExternalTotal() * 100 / this.getTotal();
+          };
+
           d.getInternalTotal = function(){
             var externalTotal = 0;
             if(globalFilters.footprintFilter.indexOf("agriculture") != -1){
@@ -186,7 +206,6 @@ body {
             if(globalFilters.footprintFilter.indexOf("domestic") != -1){
               externalTotal += this["InternalDomestic" + ((globalFilters.perCapita)? "Cap" : "")];
             }
-            console.log(externalTotal);
             return externalTotal;
           };
           d.getExternalTotal = function(){
@@ -260,34 +279,67 @@ body {
           updateSortingAndRows();
         });
 
-
-
+        // Mouse over row
         var mouseOverRow = function(d, i) {
           d3.select(this).attr(
             "fill", "#EDAE00"
           );
-
+          // Left
           // Draw Row Line
           if(( dataDisplayRange / 2) - xScale(d.getInternalTotal() ) - 10 > 0){
             svg.append("rect")
-            .attr("id",  "r" + i)
+            .attr("id",  "trl" + i)
             .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
-            .attr("y",  yScale(i) + (yScale(1)/2) - 0.5)
+            .attr("y",  yScale(i) + ((yScale(1)-titlePadding)/2))
             .attr("height", 1)
-            .attr("width", ( dataDisplayRange / 2) - xScale(d.getInternalTotal() ))
+            .attr("width", ( dataDisplayRange / 2) - (d.getInternalTotal()/d.getTotal()) * xScale(d.getTotal()))
             .attr("fill", "#000000")
-            .style("opacity", 0.2);
+            .style("opacity", 0.1);
           }
-
-          // Row Label
+          // Row Left Label
           svg.append("text")
-          .attr("id",  "t" + i)
-          .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2) - 30)
-          .attr("y",  yScale(i) + 5)
-          .attr("font-family", "'PT Mono', monospace")
-          .attr("font-size", "13px")
-          .attr("text-anchor", "end")
-          .text( Math.round(xScale(d.getInternalTotal())));
+          .attr("id",  "tlt" + i)
+          .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
+          .attr("y",  yScale(i) - 2)
+          .attr("class", "mouse-over-label")
+          .html( Math.round(d.getInternalTotal()) + "&thinsp;Ml/y");
+
+          // Row Left Label Bottom
+          svg.append("text")
+          .attr("id",  "tlb" + i)
+          .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
+          .attr("y",  yScale(i) + 16)
+          .attr("class", "mouse-over-label")
+          .html( Math.round(d.getInternalPercent()) + "&thinsp;%");
+
+
+          // Right
+          // Draw Row Line
+          if(( dataDisplayRange / 2) - xScale(d.getExternalTotal() ) - 10 > 0){
+            svg.append("rect")
+            .attr("id",  "trr" + i)
+            .attr("x",  ( width / 2 ) +  (d.getExternalTotal()/d.getTotal()) * xScale(d.getTotal()) + 60 )
+            .attr("y",  yScale(i) + ((yScale(1)-titlePadding)/2))
+            .attr("height", 1)
+            .attr("width", ( dataDisplayRange / 2) - (d.getExternalTotal()/d.getTotal()) * xScale(d.getTotal()) - 60)
+            .attr("fill", "#000000")
+            .style("opacity", 0.1);
+          }
+          // Row Right Label
+          svg.append("text")
+          .attr("id",  "trt" + i)
+          .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
+          .attr("y",  yScale(i) - 2)
+          .attr("class", "mouse-over-label right")
+          .html( Math.round(d.getExternalTotal()) + "&thinsp;Ml/y");
+
+          // Row Right Label Bottom
+          svg.append("text")
+          .attr("id",  "trb" + i)
+          .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
+          .attr("y",  yScale(i) + 16)
+          .attr("class", "mouse-over-label right")
+          .html( Math.round(d.getExternalPercent()) + "&thinsp;%");
 
           // Country Label
           svg.append("text")
@@ -302,8 +354,15 @@ body {
           d3.select(this).attr(
             "fill", getRowColor(d)
           );
-          d3.select("#t" + i).remove();
-          d3.select("#r" + i).remove();
+          d3.select("#tlt" + i).remove();
+          d3.select("#tlb" + i).remove();
+
+          d3.select("#trt" + i).remove();
+          d3.select("#trb" + i).remove();
+
+          d3.select("#trl" + i).remove();
+          d3.select("#trr" + i).remove();
+
           d3.select("#country" + i).remove();
         };
 
@@ -346,10 +405,10 @@ body {
           .duration(600)
           .attr("width", function(d) {
             var w = (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
-            if(typeof w == "number" && w > 0){
+            if(typeof w == "number" && w > 3){
               return w;
             }
-            return 0;
+            return 3;
           })
           .attr("height", function(d,i) {
             return  yScale(1) - titlePadding; })
@@ -357,8 +416,12 @@ body {
               return yScale(i);
             })
             .attr("x", function(d,i){
-              var xVal = ( width / 2 ) - (d.getInternalTotal() / d.getTotal()) * ((globalFilters.xScaleLog) ? xScaleLog(d.getInternalTotal()) : xScale(d.getInternalTotal()));
-              return  (xVal > 0) ? xVal : ( width / 2 );
+              var w = (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
+              if(typeof w == "number" && w > 3){
+                var xVal = ( width / 2 ) - (d.getInternalTotal() / d.getTotal()) * ((globalFilters.xScaleLog) ? xScaleLog(d.getInternalTotal()) : xScale(d.getInternalTotal()));
+                return  (xVal > 0) ? xVal : ( width / 2 );
+              }
+              return ( width / 2 ) - 1.5;
             })
             .attr("fill", function(d) {
               return  getRowColor(d);
