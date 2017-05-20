@@ -183,6 +183,9 @@ body {
         return regionColors[regions.indexOf(d.Region)];
       }
 
+      // Reload on resize
+      $(window).resize(function(){location.reload();});
+
       // Hide Map
       var mouseOutDelayCount = 0;
       $(document).mousemove(function(e) {
