@@ -151,7 +151,7 @@ body {
       <h3>Filter</h3>
       <form>
         <input id="capitafilterr1" type="radio" name="capitafilter" value="capita" checked="checked"> <label for="capitafilterr1">Footprint per Capita</label><br>
-        <input id="capitafilterr2" type="radio" name="capitafilter" value="country"> <label for="capitafilterr2">Footprint per Country <small>(log value)</small></label><br>
+        <input id="capitafilterr2" type="radio" name="capitafilter" value="country"> <label for="capitafilterr2">Footprint per Country</label><br>
       </form>
       <br>
       <div class="DividerLine3"></div>
@@ -170,6 +170,7 @@ body {
       var regionColors = ["#0a0d4f", "#13338e", "#13338e", "#5b85d4", "#5b85d4 ", "#c0eaff", "#c0eaff", "#c0eaff", "#c0eaff", "#446c7f", "#2a434e"];
 
       var titlePadding = 50;
+      var widthCenterPadding = 3;
       var width = window.innerWidth - 20;
       var height = window.innerHeight - titlePadding + 20;
       var dataDisplayRange = width - 600
@@ -290,11 +291,11 @@ body {
           switch($(e.target).val()){
             case "capita":
             globalFilters.perCapita = true;
-            globalFilters.xScaleLog = false;
+            //globalFilters.xScaleLog = false;
             break;
             case "country":
             globalFilters.perCapita = false;
-            globalFilters.xScaleLog = true;
+            //globalFilters.xScaleLog = true;
             break;
           }
           updateSortingAndRows();
@@ -429,11 +430,7 @@ body {
           .ease(d3.easeExpOut)
           .duration(600)
           .attr("width", function(d) {
-            var w = (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
-            if(typeof w == "number" && w > 3){
-              return w;
-            }
-            return 3;
+            return (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal()) + (widthCenterPadding + 2);
           })
           .attr("height", function(d,i) {
             return  yScale(1) - titlePadding; })
@@ -441,12 +438,12 @@ body {
               return yScale(i);
             })
             .attr("x", function(d,i){
-              var w = (globalFilters.xScaleLog) ? xScaleLog(d.getTotal()) : xScale(d.getTotal());
-              if(typeof w == "number" && w > 3){
-                var xVal = ( width / 2 ) - (d.getInternalTotal() / d.getTotal()) * ((globalFilters.xScaleLog) ? xScaleLog(d.getInternalTotal()) : xScale(d.getInternalTotal()));
-                return  (xVal > 0) ? xVal : ( width / 2 );
+              if(globalFilters.xScaleLog){
+                return ( width / 2 ) - ( xScaleLog(d.getInternalTotal()) / d.getTotal()) * d.getInternalTotal() - widthCenterPadding/2;
+
+              }else{
+                return ( width / 2 ) -  xScale(d.getInternalTotal()) - (widthCenterPadding + 2)/2;
               }
-              return ( width / 2 ) - 1.5;
             })
             .attr("fill", function(d) {
               return  getRowColor(d);
@@ -473,7 +470,7 @@ body {
             .attr("x", (width/2) - 1.5)
             .attr("y", 0)
             .attr("height", height)
-            .attr("width", 3)
+            .attr("width", widthCenterPadding)
             .attr("fill", "#FFFFFF")
             .attr("pointer-events", "none")
             .style("opacity", 0)
