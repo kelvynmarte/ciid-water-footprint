@@ -143,6 +143,7 @@ body {
 
       <form>
         <input id="sortbyr1" type="radio" name="sortby" value="region" checked="checked"> <label for="sortbyr1">Continent</label><br>
+        <input id="sortbyr5" type="radio" name="sortby" value="alphabetical"> <label for="sortbyr5">Alphabetical</label><br>
         <input id="sortbyr2" type="radio" name="sortby" value="inside"> <label for="sortbyr2">Internal Water Footprint</label><br>
         <input id="sortbyr3" type="radio" name="sortby" value="outside"> <label for="sortbyr3">External Water Footprint</label><br>
         <input id="sortbyr4" type="radio" name="sortby" value="total"> <label for="sortbyr4">Total Water Footprint</label><br>
@@ -414,6 +415,11 @@ body {
             case "total":
             rows.sort(function(a,b) {
               return d3.descending(a.getTotal(), b.getTotal());
+            });
+            break;
+            case "alphabetical":
+            rows.sort(function(a,b) {
+              return d3.ascending(a.Country, b.Country);
             });
             break;
           }
