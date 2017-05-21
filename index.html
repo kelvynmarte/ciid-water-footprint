@@ -178,9 +178,17 @@ body {
       var svg = d3.select(".chart").append("svg").attr("width", window.innerWidth).attr("height", window.innerHeight);
 
       var globalFilters = {perCapita: true, xScaleLog: false, footprintFilter: ["agriculture", "industrial", "domestic"]};
+      var activeRow = false;
+
+      var selectedRowColor = "#EDAE00";
+
 
       var getRowColor = function(d){
-        return regionColors[regions.indexOf(d.Region)];
+        if(activeRow.CountryNoSpace != d.CountryNoSpace){
+          return regionColors[regions.indexOf(d.Region)];
+        } else {
+          return selectedRowColor;
+        }
       }
 
       // Reload on resize
@@ -219,6 +227,7 @@ body {
           d.Total = +d.Total;
           d.TotalCap = +d.TotalCap;
           d.Country = d.Country.trim();
+          d.CountryNoSpace = d.Country.replace(/\W+/g, '')
 
           d.getInternalPercent = function(){
             return this.getInternalTotal() * 100 / this.getTotal();
@@ -311,14 +320,29 @@ body {
         });
 
         // Mouse over row
+        var mouseClickRow = function(d, i) {
+
+          activeRowOld = activeRow;
+          activeRow = d;
+          if(activeRow){
+            d3.select("#datarow" + activeRowOld.CountryNoSpace).attr(
+              "fill", getRowColor(activeRowOld)
+            );
+            d3.selectAll("g#rowlabel" + activeRowOld.CountryNoSpace).remove();
+          }
+        };
+
+        // Mouse over row
         var mouseOverRow = function(d, i) {
-          d3.select(this).attr(
-            "fill", "#EDAE00"
+          var labelGroup = svg.append("g")
+          .attr("id",  "rowlabel" + d.CountryNoSpace);
+          d3.select("#datarow" + d.CountryNoSpace).attr(
+            "fill", selectedRowColor
           );
           // Left
           // Draw Row Line
           if(( dataDisplayRange / 2) - xScale(d.getInternalTotal() ) - 10 > 0){
-            svg.append("rect")
+            labelGroup.append("rect")
             .attr("id",  "trl" + i)
             .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
             .attr("y",  yScale(i) + ((yScale(1)-titlePadding)/2))
@@ -328,7 +352,7 @@ body {
             .style("opacity", 0.1);
           }
           // Row Left Label
-          svg.append("text")
+          labelGroup.append("text")
           .attr("id",  "tlt" + i)
           .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
           .attr("y",  yScale(i) - 2)
@@ -336,7 +360,7 @@ body {
           .html( Math.round(d.getInternalTotal()) + "&thinsp;Ml/y");
 
           // Row Left Label Bottom
-          svg.append("text")
+          labelGroup.append("text")
           .attr("id",  "tlb" + i)
           .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
           .attr("y",  yScale(i) + 16)
@@ -345,8 +369,8 @@ body {
 
           // Right
           // Draw Row Line
-          if(( dataDisplayRange / 2) - xScale(d.getExternalTotal() ) - 10 > 0){
-            svg.append("rect")
+          if(( dataDisplayRange / 2) - xScale(d.getExternalTotal() ) - 60 > 0){
+            labelGroup.append("rect")
             .attr("id",  "trr" + i)
             .attr("x",  ( width / 2 ) +  (d.getExternalTotal()/d.getTotal()) * xScale(d.getTotal()) + 60 )
             .attr("y",  yScale(i) + ((yScale(1)-titlePadding)/2))
@@ -356,7 +380,7 @@ body {
             .style("opacity", 0.1);
           }
           // Row Right Label
-          svg.append("text")
+          labelGroup.append("text")
           .attr("id",  "trt" + i)
           .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
           .attr("y",  yScale(i) - 2)
@@ -364,7 +388,7 @@ body {
           .html( Math.round(d.getExternalTotal()) + "&thinsp;Ml/y");
 
           // Row Right Label Bottom
-          svg.append("text")
+          labelGroup.append("text")
           .attr("id",  "trb" + i)
           .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
           .attr("y",  yScale(i) + 16)
@@ -372,28 +396,22 @@ body {
           .html( Math.round(d.getExternalPercent()) + "&thinsp;%");
 
           // Country Label
-          svg.append("text")
+          labelGroup.append("text")
           .attr("id",  "country" + i)
-          .attr("x",  width  )
+          .attr("x",  width)
           .attr("y",  yScale(i) + 5)
           .attr("class", "country-label")
           .text(d.Country);
         };
 
         var mouseOutRow = function(d, i) {  // Add interactivity
-          d3.select(this).attr(
-            "fill", getRowColor(d)
-          );
-          d3.select("#tlt" + i).remove();
-          d3.select("#tlb" + i).remove();
 
-          d3.select("#trt" + i).remove();
-          d3.select("#trb" + i).remove();
-
-          d3.select("#trl" + i).remove();
-          d3.select("#trr" + i).remove();
-
-          d3.select("#country" + i).remove();
+          if(!activeRow || activeRow.Country != d.Country ){
+            d3.select("#datarow" + d.CountryNoSpace).attr(
+              "fill", getRowColor(d)
+            );
+            d3.selectAll("g#rowlabel" + d.CountryNoSpace).remove();
+          }
         };
 
         var updateSortingAndRows = function(){
@@ -429,6 +447,13 @@ body {
           // Reselect elements and apply transition
           rows = svg.select("g.data-rows").selectAll("rect.data-row");
           updateRows(rows);
+          // TODO Select row
+          mouseClickRow(activeRow, activeRow.i);
+          setTimeout(
+            function(){
+              mouseOverRow(activeRow, activeRow.i);
+            }, 600
+          );
         }
 
         var updateRows = function(rows) {
@@ -444,6 +469,7 @@ body {
           .attr("height", function(d,i) {
             return  yScale(1) - titlePadding; })
             .attr("y", function(d,i){
+              d.i = i;
               return yScale(i);
             })
             .attr("x", function(d,i){
@@ -466,6 +492,7 @@ body {
 
             rows
             .on("mouseover", mouseOverRow)
+            .on("click", mouseClickRow)
             .on("mouseout", mouseOutRow);
           };
           // Draw Center Border
@@ -515,6 +542,9 @@ body {
           .data(data)
           .enter()
           .append("rect")
+          .attr("id", function(d,i){
+            return "datarow" + d.CountryNoSpace;
+          })
           .attr("class", "data-row")
           .attr("width", 0)
           .attr("height", 0)
