@@ -490,7 +490,7 @@ button:hover {
           .attr("x",  ( width / 2 ) -  (dataDisplayRange / 2))
           .attr("y",  yScale(i) + 16)
           .attr("class", "mouse-over-label")
-          .html( Math.round(d.getInternalPercent()) + "&thinsp;%");
+          .html( (d.getInternalPercent()) ? Math.round(d.getInternalPercent()) + "&thinsp;%" : "");
 
           // Right
           // Draw Row Line
@@ -510,7 +510,7 @@ button:hover {
           .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
           .attr("y",  yScale(i) - 2)
           .attr("class", "mouse-over-label right")
-          .html( (d.getExternalTotal()) ? Math.round(d.getExternalTotal()) + "&thinsp;Ml/y" : "");
+          .html( Math.round(d.getExternalTotal()) + "&thinsp;Ml/y");
 
           // Row Right Label Bottom
           labelGroup.append("text")
