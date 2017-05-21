@@ -510,7 +510,7 @@ button:hover {
           .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
           .attr("y",  yScale(i) - 2)
           .attr("class", "mouse-over-label right")
-          .html( Math.round(d.getExternalTotal()) + "&thinsp;Ml/y");
+          .html( (d.getExternalTotal()) ? Math.round(d.getExternalTotal()) + "&thinsp;Ml/y" : "");
 
           // Row Right Label Bottom
           labelGroup.append("text")
@@ -518,7 +518,7 @@ button:hover {
           .attr("x",  ( width / 2 ) +  (dataDisplayRange / 2))
           .attr("y",  yScale(i) + 16)
           .attr("class", "mouse-over-label right")
-          .html( Math.round(d.getExternalPercent()) + "&thinsp;%");
+          .html( (d.getExternalPercent()) ? Math.round(d.getExternalPercent()) + "&thinsp;%" : "");
 
           // Country Label
           labelGroup.append("text")
