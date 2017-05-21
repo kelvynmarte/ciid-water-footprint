@@ -64,10 +64,11 @@ body {
 
 .description-container a {
   font-family: 'PT Mono', monospace;
-  font-size: 13px;
+  font-size: 11px;
   color: #666666;
   line-height: 19px;
   text-decoration: underline;
+  cursor: pointer;
 }
 
 .menu-container {
@@ -122,6 +123,86 @@ body {
   opacity: 0;
 }
 
+#info-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  height: 100vh;
+  position: fixed;
+  z-index: 110;
+  top: 0;
+  left: 0;
+  background-color: #666666;
+  color: #FFFFFF;
+  padding: 0;
+  text-align: center;
+  transition: all 800ms;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  opacity: 1;
+}
+#info-box.hide {
+  opacity: 0;
+  top: -100vh;
+}
+
+#info-box h2 {
+  font-family: 'PT Mono', monospace;
+  font-size: 28px;
+  color: #FFFFFF;
+  text-transform: uppercase;
+  padding: 0 0;
+  line-height: 38px;
+  margin-top: 0;
+}
+
+#info-box h3 {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #FFFFFF;
+  line-height: 16px;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+}
+
+#info-box p {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #FFFFFF;
+  line-height: 16px;
+  margin-top: 4px;
+}
+
+#info-box a {
+  font-family: 'PT Mono', monospace;
+  font-size: 11px;
+  color: #FFFFFF;
+  line-height: 16px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+#info-box button {
+  margin-top: 28px;
+}
+
+button {
+  font-family: 'PT Mono', monospace;
+  font-size: 13px;
+  color: #EDAE00;
+  background-color: transparent;
+  border: 2px solid #EDAE00;
+  padding: 12px 22px;
+  transition: all 600ms;
+  transition-timing-function: cubic-bezier(0.4, 0.0, 0.2, 1);
+  cursor: pointer;
+}
+
+button:hover {
+  color: #FFFFFF;
+  background-color: #EDAE00;
+}
+
 </style>
 <body>
   <div class="chart">
@@ -134,7 +215,7 @@ body {
       <p>See the water footprint of a country and of each citizen.</p>
       <p>Find out how much of that footprint lies within a country (<i>internal</i>) and how much is related to water used for imported products or ingredients (<i>external</i>).</p>
       <p class="small">Shown is the average consumption in the period from 1996 to 2005<br>
-      <a href="http://waterfootprint.org/en/resources/water-footprint-statistics/#CP3">data source</a></p>
+      <a id="info-box-show">info &amp; data source</a></p>
     </div>
 
     <div class="menu-container">
@@ -164,7 +245,39 @@ body {
         </form>
       </div>
 
-      <img id="world-map" src="map.svg" onerror="this.src='map.png'">.
+      <img id="world-map" src="map.svg" onerror="this.src='map.png'">
+
+      <div id="info-box" class="hide">
+        <divlass="">
+          <h2>National<br>
+            Water <br>
+            Footprint</h2>
+
+            <h3>Info</h3>
+            <p>
+              This is the result of a 3 day project during a data visualisation seminar at <a href="http://ciid.dk">CIID</a><br> by Clara Subirats and Kelvyn Ornette Sol Marte.
+            </p>
+            <p>
+
+            </p>
+
+            <p>
+              For more information on water footprint visit: <br><a href="http://waterfootprint.org/en/water-footprint/what-is-water-footprint/">waterfootprint.org</a>
+            </p>
+
+            <h3>Source</h3>
+            <p>
+            Hoekstra, A.Y. and Mekonnen, M.M. (2012) <br>'The water footprint of humanity’,<br> Proceedings of the National Academy of Sciences,<br> 109(9): 3232–3237.<br>
+            <a href="http://waterfootprint.org/en/resources/water-footprint-statistics/#CP3">waterfootprint.org</a>
+            </p>
+
+            <button type="button" name="button" id="info-box-hide">CLOSE</button>
+
+        </div>
+
+
+
+      </div>
 
       <script>
       var regions = ["OCEANIA","SUB SAHARAN AFRICA","NORTHERN AFRICA","ASIA","NEAR EAST","EASTERN EUROPE","WESTERN EUROPE", "BALTICS","C.W. OF IND. STATES", "LATIN AMERICA", "NORTHERN AMERICA"  ];
@@ -204,6 +317,18 @@ body {
             $( "#world-map" ).removeClass( "hide-map" );
           }
       });
+
+      // Show and hide info box
+      $("#info-box-hide").click(function(e) {
+          $( "#info-box" ).addClass( "hide" );
+      });
+
+      $("#info-box-show").click(function(e) {
+        console.log(e);
+          $( "#info-box" ).removeClass( "hide" );
+
+      });
+
 
       d3.csv("waterFootprint.csv", function(error, data) {
 
