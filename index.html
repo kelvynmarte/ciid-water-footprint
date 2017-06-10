@@ -444,11 +444,12 @@ button:hover {
           updateSortingAndRows();
         });
 
-        // Mouse over row
+        // Mouse click row
         var mouseClickRow = function(d, i) {
 
           activeRowOld = activeRow;
           activeRow = d;
+
           if(activeRow){
             d3.select("#datarow" + activeRowOld.CountryNoSpace).attr(
               "fill", getRowColor(activeRowOld)
@@ -617,7 +618,12 @@ button:hover {
 
             rows
             .on("mouseover", mouseOverRow)
-            .on("click", mouseClickRow)
+            .on("click", function(d,i) {
+              if(activeRow == d){ // TODO quick fix
+                d = false;
+              }
+              mouseClickRow(d,i);
+            })
             .on("mouseout", mouseOutRow);
           };
           // Draw Center Border
